@@ -46,3 +46,19 @@ ChromeDriver was started successfully on port 51989.
 [1754949240.760][WARNING]: Deprecated chrome option is ignored: useAutomationExtension
 [1754949241.623][WARNING]: Deprecated chrome option is ignored: useAutomationExtension
 [1754949241.623][WARNING]: Deprecated chrome option is ignored: useAutomationExtension
+Starting ChromeDriver 138.0.7204.183 (e90faf484ddbc033fc9bf337621761d3dd5c5289-refs/branch-heads/7204@{#2435}) on port 62776
+Only local connections are allowed.
+Please see https://chromedriver.chromium.org/security-considerations for suggestions on keeping ChromeDriver safe.
+ChromeDriver was started successfully on port 62776.
+[1754992814.488][WARNING]: Deprecated chrome option is ignored: useAutomationExtension
+[1754992814.488][WARNING]: Deprecated chrome option is ignored: useAutomationExtension
+[1754992815.780][WARNING]: Deprecated chrome option is ignored: useAutomationExtension
+[1754992815.780][WARNING]: Deprecated chrome option is ignored: useAutomationExtension
+Starting ChromeDriver 138.0.7204.183 (e90faf484ddbc033fc9bf337621761d3dd5c5289-refs/branch-heads/7204@{#2435}) on port 62840
+Only local connections are allowed.
+Please see https://chromedriver.chromium.org/security-considerations for suggestions on keeping ChromeDriver safe.
+ChromeDriver was started successfully on port 62840.
+[1754992865.984][WARNING]: Deprecated chrome option is ignored: useAutomationExtension
+[1754992865.985][WARNING]: Deprecated chrome option is ignored: useAutomationExtension
+[1754992868.888][WARNING]: Deprecated chrome option is ignored: useAutomationExtension
+[1754992868.888][WARNING]: Deprecated chrome option is ignored: useAutomationExtension
