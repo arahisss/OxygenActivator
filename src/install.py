@@ -57,8 +57,6 @@ def build_app():
     PyInstaller.__main__.run([
         'build.spec',
         '--clean',
-        '--distpath', os.path.join(project_root, 'dist'),
-        '--workpath', os.path.join(project_root, 'build')
     ])
 
     exe_path = os.path.join(project_root, "dist", "OxygenActivator.exe")
