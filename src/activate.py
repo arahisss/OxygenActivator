@@ -74,15 +74,9 @@ def main():
     print("└─────────────────────────────────────────────┘")
 
     with tqdm(total=7, desc="", unit="step") as pbar:
-        gen_license_key(pbar)
-        # Получаем ключ из аргументов или файла
-        if len(sys.argv) > 1:
-            license_key = sys.argv[1]
-        elif os.path.exists("key.txt"):
-            with open("key.txt", "r", encoding='utf-8') as f:
-                license_key = f.read()
-        else:
-            return
+        license_key = gen_license_key(pbar)
+        if len(license_key) < 1:
+            license_key = gen_license_key(pbar)
 
         updater = OxygenLicenseUpdater(license_key)
         success = updater.update_license(pbar)
@@ -92,6 +86,7 @@ def main():
         print("\n Ошибка активации. Проверьте:")
         print("  1. Закрыт ли Oxygen")
         print("  2. Права на запись в папку AppData")
-    time.sleep(0.5)
+    os.remove("chromedriver_and_chrome.log")
+    time.sleep(1)
 
 main()

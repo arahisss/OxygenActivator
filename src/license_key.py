@@ -208,8 +208,6 @@ def gen_license_key(pbar):
 
         time.sleep(2)
         key = inbox.find_element(By.CSS_SELECTOR, "pre")
-        with open('key.txt', 'w') as f:
-            f.write(key.text)
         return key.text
     except Exception as e:
         pass
