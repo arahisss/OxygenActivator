@@ -1,6 +1,8 @@
 import os
 import shutil
 import time
+import subprocess
+import glob
 from typing import Optional
 from license_key import gen_license_key
 from tqdm import tqdm
@@ -68,6 +70,26 @@ class OxygenLicenseUpdater:
             return False
 
 
+def find_oxygen_editor():
+    """Ищет oxygenXX.X.exe в папках вида 'Oxygen XML Editor XX'"""
+    base_paths = [
+        os.getenv("ProgramFiles"),
+        os.getenv("ProgramFiles(x86)"),
+        os.path.join(os.getenv("LOCALAPPDATA"), "Programs")
+    ]
+
+    for base in base_paths:
+        for folder in glob.glob(os.path.join(base, "Oxygen XML Editor*")):
+            if not os.path.isdir(folder):
+                continue
+
+            for exe in glob.glob(os.path.join(folder, "oxygen*.exe")):
+                exe_name = os.path.basename(exe).lower()
+                if "author" not in exe_name and exe_name.startswith("oxygen"):
+                    return exe
+    return None
+
+
 def main():
     print("┌─────────────────────────────────────────────┐")
     print("│ Oxygen License Activator v1.1               │")
@@ -75,13 +97,17 @@ def main():
 
     with tqdm(total=7, desc="", unit="step") as pbar:
         license_key = gen_license_key(pbar)
-        if len(license_key) < 1:
+        if not license_key:
             license_key = gen_license_key(pbar)
 
         updater = OxygenLicenseUpdater(license_key)
         success = updater.update_license(pbar)
     if success:
         print("\n Лицензия успешно обновлена!")
+        oxygen_exe = find_oxygen_editor()
+        if oxygen_exe:
+            subprocess.Popen([oxygen_exe])
+            print(f"Запускаем Oxygen...")
     else:
         print("\n Ошибка активации. Проверьте:")
         print("  1. Закрыт ли Oxygen")
