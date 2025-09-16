@@ -28,10 +28,10 @@ def get_driver(logfile_path="chromedriver_and_chrome.log", headless=True, timeou
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--window-size=1200,900")
+    options.add_argument("--disable-blink-features=AutomationControlled")
 
     options.add_argument("--log-level=3")
     options.add_experimental_option("excludeSwitches", ["enable-automation", "enable-logging"])
-    options.add_experimental_option("useAutomationExtension", False)
 
     os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "3")
 
@@ -69,6 +69,10 @@ def get_driver(logfile_path="chromedriver_and_chrome.log", headless=True, timeou
 
     driver = webdriver.Remote(command_executor=f"http://127.0.0.1:{port}", options=options)
 
+    driver.execute_cdp_cmd(
+        "Page.addScriptToEvaluateOnNewDocument",
+        {"source": "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"}
+    )
     original_quit = driver.quit
 
     def _quit_and_kill(*args, **kwargs):
@@ -154,6 +158,7 @@ def waiting_letter(driver, inbox):
     letter_found = False
 
     while attempt < max_attempts and not letter_found:
+        dismiss_popups(driver)
         attempt += 1
         try:
             driver.execute_script("arguments[0].click();", refresh_button)
@@ -165,6 +170,7 @@ def waiting_letter(driver, inbox):
         except NoSuchElementException:
             time.sleep(5)
             continue
+
 
 def get_email(driver, pbar):
     max_attempts = 5
@@ -190,6 +196,25 @@ def get_email(driver, pbar):
             continue
 
 
+def send_mail(email):
+    driver = get_driver()
+    license_url = 'https://www.oxygenxml.com/xml_editor/register.html'
+    driver.get(license_url)
+
+    email_field = driver.find_element(By.ID, "email")
+    email_field.clear()
+    email_field.send_keys(email)
+
+    country_dropdown = Select(driver.find_element(By.ID, "country"))
+    country_dropdown.select_by_visible_text("Germany")
+
+    submit_button = driver.find_element(By.ID, "XML_Editor")
+
+    driver.execute_script("arguments[0].click();", submit_button)
+    time.sleep(1)
+    driver.quit()
+
+
 def gen_license_key(pbar):
     url = 'https://internxt.com/ru/temporary-email'
     driver = get_driver()
@@ -213,22 +238,3 @@ def gen_license_key(pbar):
         pass
     finally:
         driver.quit()
-
-
-def send_mail(email):
-    driver = get_driver()
-    license_url = 'https://www.oxygenxml.com/xml_editor/register.html'
-    driver.get(license_url)
-
-    email_field = driver.find_element(By.ID, "email")
-    email_field.clear()
-    email_field.send_keys(email)
-
-    country_dropdown = Select(driver.find_element(By.ID, "country"))
-    country_dropdown.select_by_visible_text("Germany")
-
-    submit_button = driver.find_element(By.ID, "XML_Editor")
-
-    driver.execute_script("arguments[0].click();", submit_button)
-    time.sleep(1)
-    driver.quit()

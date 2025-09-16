@@ -89,6 +89,14 @@ def find_oxygen_editor():
                     return exe
     return None
 
+def attempts_gen_key(pbar):
+    license_key = gen_license_key(pbar)
+    attempts = 5
+    while not license_key and attempts > 0:
+        license_key = gen_license_key(pbar)
+        attempts -= 1
+    return license_key
+
 
 def main():
     print("┌─────────────────────────────────────────────┐")
@@ -96,9 +104,8 @@ def main():
     print("└─────────────────────────────────────────────┘")
 
     with tqdm(total=7, desc="", unit="step") as pbar:
-        license_key = gen_license_key(pbar)
-        if not license_key:
-            license_key = gen_license_key(pbar)
+        license_key = attempts_gen_key(pbar)
+        print(license_key)
 
         updater = OxygenLicenseUpdater(license_key)
         success = updater.update_license(pbar)
