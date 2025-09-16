@@ -100,12 +100,11 @@ def attempts_gen_key(pbar):
 
 def main():
     print("┌─────────────────────────────────────────────┐")
-    print("│ Oxygen License Activator v1.1               │")
+    print("│ Oxygen License Activator v1.3               │")
     print("└─────────────────────────────────────────────┘")
 
     with tqdm(total=7, desc="", unit="step") as pbar:
         license_key = attempts_gen_key(pbar)
-        print(license_key)
 
         updater = OxygenLicenseUpdater(license_key)
         success = updater.update_license(pbar)

@@ -65,7 +65,7 @@ def get_driver(logfile_path="chromedriver_and_chrome.log", headless=True, timeou
         except Exception:
             pass
         log_fd.close()
-        raise RuntimeError("chromedriver не запустился/не отвечает в отведённое время. См. лог: " + os.path.abspath(logfile_path))
+        raise RuntimeError("chromedriver не запустился/не отвечает в отведённое время." + os.path.abspath(logfile_path))
 
     driver = webdriver.Remote(command_executor=f"http://127.0.0.1:{port}", options=options)
 
