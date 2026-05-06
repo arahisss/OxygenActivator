@@ -11,6 +11,7 @@ import time
 import os
 import subprocess
 import socket
+import random
 
 
 def _get_free_port():
@@ -22,12 +23,12 @@ def _get_free_port():
 
 def get_driver(logfile_path="chromedriver_and_chrome.log", headless=True, timeout=15):
     options = webdriver.ChromeOptions()
-    if headless:
-        options.add_argument("--headless=new")
+    # if headless:
+    #     options.add_argument("--headless=new")
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--window-size=1200,900")
+    options.add_argument("--start-maximized")
     options.add_argument("--disable-blink-features=AutomationControlled")
 
     options.add_argument("--log-level=3")
@@ -149,7 +150,11 @@ def dismiss_popups(driver):
 
 
 def waiting_letter(driver, inbox):
-    refresh_button = driver.find_element(By.XPATH, "//button[contains(., 'Обновить')]")
+    refresh_button = driver.find_element(
+        By.CSS_SELECTOR,
+        "button svg[data-tooltip-id='arrows-clockwise']"
+    ).find_element(By.XPATH, "./..")
+
     actions = ActionChains(driver)
     actions.move_to_element(refresh_button).perform()
 
@@ -161,19 +166,24 @@ def waiting_letter(driver, inbox):
         dismiss_popups(driver)
         attempt += 1
         try:
-            driver.execute_script("arguments[0].click();", refresh_button)
             time.sleep(3)
+            driver.execute_script("arguments[0].click();", refresh_button)
 
-            letter = inbox.find_element(By.CSS_SELECTOR, "div.overflow-y-scroll > button")
-            letter.click()
+            first_letter = driver.find_element(
+                By.XPATH,
+                ".//button[.//p[@title='support@oxygenxml.com']]"
+            )
+
+            driver.execute_script("arguments[0].scrollIntoView(true);", first_letter)
+            driver.execute_script("arguments[0].click();", first_letter)
             letter_found = True
-        except NoSuchElementException:
-            time.sleep(5)
+        except Exception as e:
+            time.sleep(3)
             continue
 
 
 def get_email(driver, pbar):
-    max_attempts = 5
+    max_attempts = 10
     attempt = 0
 
     while attempt < max_attempts:
@@ -185,7 +195,6 @@ def get_email(driver, pbar):
             email = email_element.text
             if "@" in email and "Генерируем" not in email:
                 pbar.update(1)
-                # print(email)
                 return email
 
             time.sleep(3)
@@ -195,6 +204,26 @@ def get_email(driver, pbar):
             time.sleep(2)
             continue
 
+def click_top_ok_if_present(driver, timeout=5):
+    ok_texts = ["OK", "Ok", "ОК", "Ок", "Понятно", "Принять", "Accept", "Agree", "Yes"]
+    try:
+        btn = WebDriverWait(driver, timeout).until(
+            lambda d: next(
+                (
+                    el for el in d.find_elements(By.XPATH, "//button|//a")
+                    if (el.text or "").strip() in ok_texts
+                ),
+                False
+            )
+        )
+        if btn and btn is not False:
+            driver.execute_script("arguments[0].click();", btn)
+            time.sleep(0.5)
+            driver.quit()
+            return True
+    except Exception:
+        pass
+    return False
 
 def send_mail(email):
     driver = get_driver()
@@ -204,14 +233,26 @@ def send_mail(email):
     email_field = driver.find_element(By.ID, "email")
     email_field.clear()
     email_field.send_keys(email)
+    time.sleep(random.uniform(2, 4))
+
+    email_field = driver.find_element(By.ID, "name")
+    email_field.clear()
+    email_field.send_keys("Gans")
+    time.sleep(random.uniform(2, 4))
 
     country_dropdown = Select(driver.find_element(By.ID, "country"))
-    country_dropdown.select_by_visible_text("Germany")
+    country_dropdown.select_by_visible_text("Armenia")
+    time.sleep(random.uniform(3, 5))
+
+    actions = ActionChains(driver)
+    actions.move_by_offset(100, 200).perform()
+    actions.move_by_offset(-50, 100).perform()
 
     submit_button = driver.find_element(By.ID, "XML_Editor")
-
+    # submit_button.click()
     driver.execute_script("arguments[0].click();", submit_button)
-    time.sleep(1)
+    click_top_ok_if_present(driver)
+    WebDriverWait(driver, 10).until(EC.url_changes(license_url))
     driver.quit()
 
 
@@ -231,7 +272,7 @@ def gen_license_key(pbar):
         waiting_letter(driver, inbox)
         pbar.update(1)
 
-        time.sleep(2)
+        time.sleep(3)
         key = inbox.find_element(By.CSS_SELECTOR, "pre")
         return key.text
     except Exception as e:

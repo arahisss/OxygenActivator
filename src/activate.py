@@ -52,17 +52,17 @@ class OxygenLicenseUpdater:
         try:
             os.makedirs(os.path.dirname(self.license_path), exist_ok=True)
             pbar.update(1)
-            time.sleep(0.3)
+            time.sleep(0.1)
 
             if os.path.exists(self.license_path):
                 shutil.copy2(self.license_path, f"{self.license_path}.bak")
             pbar.update(1)
-            time.sleep(0.3)
+            time.sleep(0.1)
 
             with open(self.license_path, 'w', encoding='utf-8') as f:
                 f.write(self._create_new_license())
             pbar.update(1)
-            time.sleep(0.3)
+            time.sleep(0.1)
             return True
 
         except Exception as e:
@@ -92,15 +92,27 @@ def find_oxygen_editor():
 def attempts_gen_key(pbar):
     license_key = gen_license_key(pbar)
     attempts = 5
-    while not license_key and attempts > 0:
+    attempt_num = 2
+
+    while attempts > 0 and not license_key:
+        pbar.reset()
+        pbar.set_description(f"Attempt {attempt_num}")
         license_key = gen_license_key(pbar)
         attempts -= 1
+        attempt_num += 1
     return license_key
 
+def del_chromedriver():
+    for _ in range(5):
+        try:
+            os.remove("chromedriver_and_chrome.log")
+            break
+        except PermissionError:
+            time.sleep(1)
 
 def main():
     print("┌─────────────────────────────────────────────┐")
-    print("│ Oxygen License Activator v1.3               │")
+    print("│          Oxygen License Activator           │")
     print("└─────────────────────────────────────────────┘")
 
     with tqdm(total=7, desc="", unit="step") as pbar:
@@ -118,7 +130,7 @@ def main():
         print("\n Ошибка активации. Проверьте:")
         print("  1. Закрыт ли Oxygen")
         print("  2. Права на запись в папку AppData")
-    os.remove("chromedriver_and_chrome.log")
-    time.sleep(1)
+
+    del_chromedriver()
 
 main()
